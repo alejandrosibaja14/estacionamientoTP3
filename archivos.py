@@ -13,9 +13,12 @@ def guardarBD(plistaVehiculos):
     Salidas:
     Archivo pickle actualizado.
     """
-    archivo=open("vehiculos.pkl","wb")
-    pickle.dump(plistaVehiculos,archivo)
-    archivo.close()
+    try:
+        archivo=open("vehiculos.pkl","wb")
+        pickle.dump(plistaVehiculos,archivo)
+        archivo.close()
+        return True
+    except: return False
 
 
 def cargarBD():

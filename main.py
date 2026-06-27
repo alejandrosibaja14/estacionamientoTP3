@@ -25,6 +25,24 @@ def acercaDe(ventanaPrincipal):
     btnRegresar=ctk.CTkButton(ventanaAcerca,text="Regresar",command=ventanaAcerca.destroy)
     btnRegresar.pack()
 
+def obtenerVehiculosBoton():
+    vehiculosCargados,diccionarioVehiculos=cargarVehiculos()
+    if vehiculosCargados:
+        print("\n===== DICCIONARIO DE VEHÍCULOS =====\n")
+        for placa in diccionarioVehiculos:
+            print(placa)
+            print(diccionarioVehiculos[placa])
+            print("-"*50)
+        messagebox.showinfo(
+            "Éxito",
+            "Vehículos obtenidos correctamente."
+        )
+    else:
+        messagebox.showerror(
+            "Error",
+            "No fue posible obtener los vehículos."
+        )
+
 def abrirVentanaPrincipal():
     baseDatos=cargarBD()
     ctk.set_appearance_mode("Light")
@@ -38,16 +56,13 @@ def abrirVentanaPrincipal():
         font=("Arial",26,"bold")
     )
     titulo.pack(pady=30)
-    botonObtener=ctk.CTkButton(
+    botonObtenerVehiculos=ctk.CTkButton(
         ventana,
         text="1. Obtener vehículos",
         width=300,
-        command=lambda: messagebox.showinfo(
-            "Pendiente",
-            "Función en desarrollo."
-        )
+        command=obtenerVehiculosBoton
     )
-    botonObtener.pack(pady=8)
+    botonObtenerVehiculos.pack(pady=8)
     botonVer=ctk.CTkButton(
         ventana,
         text="2. Ver estacionamiento",
