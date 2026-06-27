@@ -8,6 +8,23 @@ from funciones import *
 from archivos import *
 from clases import *
 from tkinter import messagebox
+def acercaDe(ventanaPrincipal):
+    """
+    Funcionalidad:
+    Muestra una ventana con la información de los desarrolladores del sistema.
+    Entradas:
+    -ventanaPrincipal(object):Ventana padre desde donde se invoca.
+    Salidas:
+    Ventana gráfica con datos del equipo de desarrollo.
+    """
+    ventanaAcerca=ctk.CTkToplevel(ventanaPrincipal)
+    ventanaAcerca.title("Acerca de")
+    ventanaAcerca.geometry("300x200")
+    lblInfo=ctk.CTkLabel(ventanaAcerca,text="Desarrollado por:\nAlejandro Sibaja Badilla\nMarco Herrera Gómez")
+    lblInfo.pack(pady=30)
+    btnRegresar=ctk.CTkButton(ventanaAcerca,text="Regresar",command=ventanaAcerca.destroy)
+    btnRegresar.pack()
+
 def abrirVentanaPrincipal():
     baseDatos=cargarBD()
     ctk.set_appearance_mode("Light")
