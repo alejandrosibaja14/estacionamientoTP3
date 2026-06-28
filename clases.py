@@ -12,7 +12,6 @@ class Estacionamiento:
     """
 
     def __init__(self,pid,pinfo,pestadia,ppago):
-
         self.id=pid
         self.info=pinfo
         self.estadia=pestadia
