@@ -24,6 +24,24 @@ def acercaDe(ventanaPrincipal):
     lblInfo.pack(pady=30)
     btnRegresar=ctk.CTkButton(ventanaAcerca,text="Regresar",command=ventanaAcerca.destroy)
     btnRegresar.pack()
+def verEstacionamiento(ventanaPrincipal,entTamano):
+    """
+    Funcionalidad:
+    Crea la interfaz grafica con el grid de espacios del parqueo.
+    Entradas:
+    -ventanaPrincipal(object):Ventana padre del sistema.
+    -entTamano(int):Cantidad de espacios totales a dibujar.
+    Salidas:
+    Ventana con la cuadricula de botones generada.
+    """
+    ventanaParqueo=ctk.CTkToplevel(ventanaPrincipal)
+    ventanaParqueo.title("Ver Estacionamiento")
+    ventanaParqueo.geometry("800x600")
+    frameParqueo=ctk.CTkScrollableFrame(ventanaParqueo,width=700,height=500)
+    frameParqueo.pack(pady=20)
+    for i in range(entTamano):
+        btnEspacio=ctk.CTkButton(frameParqueo,text="Espacio "+str(i+1),width=100,height=50,fg_color="green")
+        btnEspacio.grid(row=i//5,column=i%5,padx=10,pady=10)
 
 def obtenerVehiculosBoton():
     vehiculosCargados,diccionarioVehiculos=cargarVehiculos()
