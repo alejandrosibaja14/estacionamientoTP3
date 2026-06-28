@@ -43,6 +43,136 @@ def obtenerVehiculosBoton():
             "No fue posible obtener los vehículos."
         )
 
+def buscarVehiculo(pplaca,plistaVehiculos,plabelMarca,plabelColor,plabelTipo):
+    """
+    Funcionalidad:
+    Muestra la información del vehículo seleccionado.
+    Entradas:
+    - pplaca(str)
+    - plistaVehiculos(lista)
+    - plabelMarca(CTkLabel)
+    - plabelColor(CTkLabel)
+    - plabelTipo(CTkLabel)
+    Salidas:
+    Actualiza los labels de la ventana.
+    """
+    for vehiculo in plistaVehiculos:
+        if vehiculo.info[0]==pplaca:
+            plabelMarca.configure(
+                text="Marca: "+str(vehiculo.info[1])
+            )
+            plabelColor.configure(
+                text="Color: "+str(vehiculo.info[2])
+            )
+            plabelTipo.configure(
+                text="Tipo: "+str(vehiculo.info[3])
+            )
+            break
+
+def estacionarVehiculoBoton(pplaca,pubicacion,pventana):
+    """
+    Funcionalidad:
+    Llama a la función de estacionar un vehículo y muestra el resultado.
+    Entradas:
+    - pplaca(str)
+    - pubicacion(str)
+    - pventana(CTkToplevel)
+    Salidas:
+    Muestra un mensaje y cierra la ventana si la operación fue exitosa.
+    """
+    vehiculoEstacionado,mensaje=estacionarVehiculo(
+        pplaca,
+        pubicacion
+    )
+    if vehiculoEstacionado:
+        messagebox.showinfo(
+            "Información",
+            mensaje
+        )
+        pventana.destroy()
+    else:
+        messagebox.showerror(
+            "Error",
+            mensaje
+        )
+
+def ventanaEstacionarVehiculo():
+    listaVehiculos=cargarBD()
+    listaPlacas=[]
+    for vehiculo in listaVehiculos:
+        listaPlacas.append(vehiculo.info[0])
+    ventana=ctk.CTkToplevel()
+    ventana.title("Estacionar vehículo")
+    ventana.geometry("420x500")
+    titulo=ctk.CTkLabel(
+        ventana,
+        text="ESTACIONAR VEHÍCULO",
+        font=("Arial",20,"bold")
+    )
+    titulo.pack(pady=20)
+    ctk.CTkLabel(
+        ventana,
+        text="Placa:"
+    ).pack()
+    comboPlaca=ctk.CTkComboBox(
+        ventana,
+        values=listaPlacas,
+        width=220
+    )
+    comboPlaca.pack(pady=5)
+    labelMarca=ctk.CTkLabel(
+        ventana,
+        text="Marca:"
+    )
+    labelMarca.pack(pady=5)
+    labelColor=ctk.CTkLabel(
+        ventana,
+        text="Color:"
+    )
+    labelColor.pack(pady=5)
+    labelTipo=ctk.CTkLabel(
+        ventana,
+        text="Tipo:"
+    )
+    labelTipo.pack(pady=5)
+    botonBuscar=ctk.CTkButton(
+        ventana,
+        text="Buscar",
+        command=lambda: buscarVehiculo(
+            comboPlaca.get(),
+            listaVehiculos,
+            labelMarca,
+            labelColor,
+            labelTipo
+        )
+    )
+    botonBuscar.pack(pady=10)
+    ctk.CTkLabel(
+        ventana,
+        text="Ubicación:"
+    ).pack()
+    entryUbicacion=ctk.CTkEntry(
+        ventana,
+        width=220
+    )
+    entryUbicacion.pack(pady=5)
+    botonEstacionar=ctk.CTkButton(
+        ventana,
+        text="Estacionar",
+        command=lambda: estacionarVehiculoBoton(
+            comboPlaca.get(),
+            entryUbicacion.get(),
+            ventana
+        )
+    )
+    botonEstacionar.pack(pady=20)
+    botonRegresar=ctk.CTkButton(
+        ventana,
+        text="Regresar",
+        command=ventana.destroy
+    )
+    botonRegresar.pack()
+
 def abrirVentanaPrincipal():
     baseDatos=cargarBD()
     ctk.set_appearance_mode("Light")
@@ -75,12 +205,9 @@ def abrirVentanaPrincipal():
     botonVer.pack(pady=8)
     botonEstacionar=ctk.CTkButton(
         ventana,
-        text="3. Estacionar vehículo",
+        text="2. Estacionar vehículo",
         width=300,
-        command=lambda: messagebox.showinfo(
-            "Pendiente",
-            "Función en desarrollo."
-        )
+        command=ventanaEstacionarVehiculo
     )
     botonEstacionar.pack(pady=8)
     botonReportes=ctk.CTkButton(

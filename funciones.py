@@ -5,6 +5,7 @@
 from clases import *
 import requests
 from archivos import *
+from datetime import datetime
 vehiculosAPI="https://my.api.mockaroo.com/vehiculos.json?key=7427d5e0"
 
 def tamanoDelEstacionamiento(tamano,gracia,monto,electrico):
@@ -125,3 +126,32 @@ def cargarVehiculos():
     if not datosGuardados:
         return False,{}
     return True, diccionarioVehiculos
+
+def estacionarVehiculo(pplaca, pubicacion):
+    """
+    Funcionalidad:
+    Registra la entrada de un vehículo al estacionamiento.
+
+    Entradas:
+    - pplaca(str): Placa del vehículo.
+    - pubicacion(str): Ubicación asignada.
+
+    Salidas:
+    Retorna:
+    (True,mensaje) si el vehículo fue estacionado.
+    (False,mensaje) si ocurrió algún error.
+    """
+    vehiculos=cargarBD()
+    for vehiculo in vehiculos:
+        if vehiculo.info[0]==pplaca:
+            if vehiculo.estadia[0]!="":
+                return False, "El vehiculo ya se encuentra estacionado"
+            horaEntrada=datetime.now().strftime("%d/%m/%Y %H:%M")
+            vehiculo.estadia[0]=pubicacion
+            vehiculo.estadia[1]=horaEntrada
+            vehiculo.estadia[2]=""
+            datosGuardados=guardarBD(vehiculos)
+            if not datosGuardados:
+                return False, "No fue posible guardar la información."
+            return True, "Vehículo estacionado correctamente."
+    return False, "La placa no se encuentra registrada."
