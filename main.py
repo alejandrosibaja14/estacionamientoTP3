@@ -77,13 +77,15 @@ def buscarVehiculo(pplaca,plistaVehiculos,plabelMarca,plabelColor,plabelTipo):
     for vehiculo in plistaVehiculos:
         if vehiculo.info[0]==pplaca:
             plabelMarca.configure(
-                text="Marca: "+str(vehiculo.info[1])
+                text="Marca: "+obtenerMarca(vehiculo.info[1])
             )
+
             plabelColor.configure(
-                text="Color: "+str(vehiculo.info[2])
+                text="Color: "+obtenerColor(vehiculo.info[2])
             )
+
             plabelTipo.configure(
-                text="Tipo: "+str(vehiculo.info[3])
+                text="Tipo: "+obtenerTipo(vehiculo.info[3])
             )
             break
 
@@ -98,6 +100,12 @@ def estacionarVehiculoBoton(pplaca,pubicacion,pventana):
     Salidas:
     Muestra un mensaje y cierra la ventana si la operación fue exitosa.
     """
+    confirmacion=messagebox.askyesno(
+        "Confirmar estacionamiento",
+        "El costo por hora es de ₡"+str(costoHora)+".\n\n¿Desea confirmar el estacionamiento?"
+    )
+    if not confirmacion:
+        return
     vehiculoEstacionado,mensaje=estacionarVehiculo(
         pplaca,
         pubicacion
