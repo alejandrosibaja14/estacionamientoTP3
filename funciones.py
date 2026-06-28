@@ -7,6 +7,47 @@ import requests
 from archivos import *
 vehiculosAPI="https://my.api.mockaroo.com/vehiculos.json?key=7427d5e0"
 
+def tamanoDelEstacionamiento(tamano,gracia,monto,electrico):
+    """
+    Funcionalidad:
+    Configura los parametros iniciales calculando los espacios manualmente y a la fuerza bruta.
+    Entradas:
+    -tamano(str):Cantidad total de espacios digitados.
+    -gracia(str):Minutos de gracia permitidos.
+    -monto(str):Precio por hora de parqueo en colones.
+    -electrico(bool):Indica si el parqueo cuenta con espacio electrico.
+    Salidas:
+    -listaConfig(list):Lista con la distribucion de espacios calculada.
+    """
+    esValido=True
+    for car in tamano:
+        if car<'0' or car>'9':
+            esValido=False
+    if esValido==True:
+        entTamano=int(tamano)
+    else:
+        entTamano=0
+    porcEsp=(entTamano*5)/100
+    entEspAux=int(porcEsp)
+    if porcEsp>entEspAux:
+        entEsp=entEspAux+1
+    else:
+        entEsp=entEspAux
+    if entTamano<40 and entEsp<2:
+        entEsp=2
+    entElec=0
+    if electrico==True:
+        entElec=1
+    entGen=entTamano-entEsp-entElec
+    porcMas=(entGen*5)/100
+    entMasAux=int(porcMas)
+    if porcMas>entMasAux:
+        entMas=entMasAux+1
+    else:
+        entMas=entMasAux
+    entTopeMas=entGen-entMas
+    return[entTamano,gracia,monto,entEsp,entElec,entGen,entTopeMas]
+
 def obtenerVehiculos():
     """
     Funcionalidad: Obiene los vehículos desde Mockaroo y construye el diccionario solicitado.
