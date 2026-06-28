@@ -13,7 +13,7 @@ def acercaDe(ventanaPrincipal):
     Funcionalidad:
     Muestra una ventana con la información de los desarrolladores del sistema.
     Entradas:
-    -ventanaPrincipal(object):Ventana padre desde donde se invoca.
+    -ventanaPrincipal(objeto):Ventana padre desde donde se invoca.
     Salidas:
     Ventana gráfica con datos del equipo de desarrollo.
     """
@@ -24,15 +24,16 @@ def acercaDe(ventanaPrincipal):
     lblInfo.pack(pady=30)
     btnRegresar=ctk.CTkButton(ventanaAcerca,text="Regresar",command=ventanaAcerca.destroy)
     btnRegresar.pack()
-def verEstacionamiento(ventanaPrincipal,entTamano):
+def verEstacionamiento(ventanaPrincipal,entTamano,listaVehiculos):
     """
     Funcionalidad:
-    Crea la interfaz grafica con el grid de espacios del parqueo.
+    Crea la interfaz grafica asignando colores segun la disponibilidad y enlaza los botones.
     Entradas:
-    -ventanaPrincipal(object):Ventana padre del sistema.
-    -entTamano(int):Cantidad de espacios totales a dibujar.
+    -ventanaPrincipal(objeto):Ventana padre del sistema.
+    -entTamano(entero):Cantidad de espacios totales a dibujar.
+    -listaVehiculos(lista):Lista de objetos Estacionamiento.
     Salidas:
-    Ventana con la cuadricula de botones generada.
+    Ventana con la cuadricula de botones y estados de color aplicados.
     """
     ventanaParqueo=ctk.CTkToplevel(ventanaPrincipal)
     ventanaParqueo.title("Ver Estacionamiento")
@@ -40,8 +41,42 @@ def verEstacionamiento(ventanaPrincipal,entTamano):
     frameParqueo=ctk.CTkScrollableFrame(ventanaParqueo,width=700,height=500)
     frameParqueo.pack(pady=20)
     for i in range(entTamano):
-        btnEspacio=ctk.CTkButton(frameParqueo,text="Espacio "+str(i+1),width=100,height=50,fg_color="green")
+        colorBoton="green"
+        for vehiculo in listaVehiculos:
+            if vehiculo.estadia[0]==i+1:
+                colorBoton="red"
+        btnEspacio=ctk.CTkButton(frameParqueo,text="Espacio "+str(i+1),width=100,height=50,fg_color=colorBoton,command=lambda idx=i:observarEspacio(ventanaParqueo,idx+1,listaVehiculos))
         btnEspacio.grid(row=i//5,column=i%5,padx=10,pady=10)
+def observarEspacio(ventanaPadre,ubicacion,listaVehiculos):
+    """
+    Funcionalidad:
+    Muestra la informacion del vehiculo estacionado o permite registrar uno nuevo si esta libre.
+    Entradas:
+    -ventanaPadre(objeto):Ventana de donde proviene.
+    -ubicacion(entero):Numero de espacio seleccionado.
+    -listaVehiculos(lista):Lista de objetos Estacionamiento.
+    Salidas:
+    Ventana grafica con la informacion del campo.
+    """
+    ventanaObservar=ctk.CTkToplevel(ventanaPadre)
+    ventanaObservar.title("Observar Espacio")
+    ventanaObservar.geometry("400x300")
+    vehiculoActual=None
+    for v in listaVehiculos:
+        if v.estadia[0]==ubicacion:
+            vehiculoActual=v
+    if vehiculoActual!=None:
+        lblInfo=ctk.CTkLabel(ventanaObservar,text="Placa: "+str(vehiculoActual.info[0])+"\nMarca: "+str(vehiculoActual.info[1])+"\nColor: "+str(vehiculoActual.info[2])+"\nHora de entrada: "+str(vehiculoActual.estadia[1]))
+        lblInfo.pack(pady=20)
+        btnPagar=ctk.CTkButton(ventanaObservar,text="Pagar")
+        btnPagar.pack(pady=5)
+    else:
+        lblInfo=ctk.CTkLabel(ventanaObservar,text="Espacio libre")
+        lblInfo.pack(pady=20)
+        btnEstacionar=ctk.CTkButton(ventanaObservar,text="Estacionar")
+        btnEstacionar.pack(pady=5)
+    btnRegresar=ctk.CTkButton(ventanaObservar,text="Regresar",command=ventanaObservar.destroy)
+    btnRegresar.pack(pady=5)
 
 def obtenerVehiculosBoton():
     vehiculosCargados,diccionarioVehiculos=cargarVehiculos()
@@ -60,7 +95,6 @@ def obtenerVehiculosBoton():
             "Error",
             "No fue posible obtener los vehículos."
         )
-
 def buscarVehiculo(pplaca,plistaVehiculos,plabelMarca,plabelColor,plabelTipo):
     """
     Funcionalidad:
