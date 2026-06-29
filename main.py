@@ -246,6 +246,27 @@ def cierreDiarioBoton():
             mensaje
         )
 
+def exportarCSVBoton():
+    """
+    Funcionalidad:
+    Llama a la función que exporta el cierre diario a un archivo CSV.
+    Entradas:
+    Ninguna.
+    Salidas:
+    Muestra un mensaje indicando el resultado de la operación.
+    """
+    datosExportados,mensaje=exportarCierreCSV()
+    if datosExportados:
+        messagebox.showinfo(
+            "Información",
+            mensaje
+        )
+    else:
+        messagebox.showerror(
+            "Error",
+            mensaje
+        )
+
 def ventanaReportes():
     """
     Funcionalidad:
@@ -285,10 +306,7 @@ def ventanaReportes():
         ventana,
         text="c. Exportar cierre diario a CSV",
         width=320,
-        command=lambda: messagebox.showinfo(
-            "Pendiente",
-            "Función en desarrollo."
-        )
+        command=exportarCSVBoton
     )
     botonExportarCSV.pack(pady=8)
     botonRegresar=ctk.CTkButton(

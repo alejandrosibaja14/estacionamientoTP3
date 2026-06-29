@@ -8,7 +8,8 @@ from archivos import *
 from datetime import datetime
 import qrcode
 from fpdf import FPDF
-from random import randint 
+from random import randint
+import csv 
 vehiculosAPI="https://my.api.mockaroo.com/vehiculos.json?key=7427d5e0"
 costoHora=1000
 
@@ -218,14 +219,13 @@ def facturarVehiculoAutomatico(pvehiculo):
     tipoPago=randint(1,3)
     monto=costoHora
     pvehiculo.pago=(monto,tipoPago)
-    pvehiculo.estadia[0]=""
 
 def cierreDiario():
     """
     Funcionalidad:
     Realiza el cierre diario del estacionamiento.
     Entradas:
-    Ninguna.
+    N/A
     Salidas:
     Factura todos los vehículos pendientes y actualiza la base de datos.
     """
@@ -238,6 +238,12 @@ def cierreDiario():
     if not datosGuardados:
         return False,"No fue posible realizar el cierre diario."
     generarReporteCierreDiario()
+    for vehiculo in vehiculos:
+        if vehiculo.estadia[2]!="":
+            vehiculo.estadia[0]=""
+    datosGuardados=guardarBD(vehiculos)
+    if not datosGuardados:
+        return False,"No fue posible actualizar la base de datos."
     return True,"Cierre diario realizado correctamente."
 
 def obtenerMarca(pmarca):
@@ -503,3 +509,48 @@ def generarReporteCierreDiario():
     )
     nombreReporte="cierre_diario_"+fechaActual.replace("/","-")+".pdf"
     pdf.output(nombreReporte)
+
+def exportarCierreCSV():
+    """
+    Funcionalidad:
+    Exporta la información del cierre diario a un archivo CSV.
+    Entradas:
+    N/A
+    Salidas:
+    Guarda el archivo CSV y retorna:
+    (True,mensaje) si se exportó correctamente.
+    (False,mensaje) si ocurrió un error.
+    """
+    vehiculos=cargarBD()
+    try:
+        fechaActual=datetime.now().strftime("%d-%m-%Y_%H-%M")
+        nombreArchivo="cierre_diario_"+fechaActual+".csv"
+        archivo=open(
+            nombreArchivo,
+            "w",
+            newline="",
+            encoding="utf-8"
+        )
+        datosCSV=csv.writer(archivo)
+        datosCSV.writerow([
+            "Ubicacion",
+            "Placa",
+            "Hora Entrada",
+            "Hora Salida",
+            "Tipo Pago",
+            "Monto"
+        ])
+        for vehiculo in vehiculos:
+            if vehiculo.estadia[2]!="":
+                datosCSV.writerow([
+                    vehiculo.estadia[0],
+                    vehiculo.info[0],
+                    vehiculo.estadia[1],
+                    vehiculo.estadia[2],
+                    obtenerTipoPago(vehiculo.pago[1]),
+                    vehiculo.pago[0]
+                ])
+        archivo.close()
+        return True,"Archivo CSV generado correctamente."
+    except:
+        return False,"No fue posible generar el archivo CSV."
