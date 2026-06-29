@@ -8,6 +8,7 @@ from archivos import *
 from datetime import datetime
 import qrcode
 from fpdf import FPDF
+from random import randint 
 vehiculosAPI="https://my.api.mockaroo.com/vehiculos.json?key=7427d5e0"
 costoHora=1000
 
@@ -164,6 +165,42 @@ def estacionarVehiculo(pplaca, pubicacion):
             return True, "Vehículo estacionado correctamente."
     return False, "La placa no se encuentra registrada."
 
+def facturarVehiculoAutomatico(pvehiculo):
+    """
+    Funcionalidad:
+    Factura automáticamente un vehículo pendiente durante el cierre diario.
+    Entradas:
+    - pvehiculo(objeto Estacionamiento)
+    Salidas:
+    Actualiza la fecha de salida, el monto y el tipo de pago.
+    """
+    horaSalida=datetime.now().strftime("%d/%m/%Y %H:%M")
+    pvehiculo.estadia[2]=horaSalida
+    tipoPago=randint(1,3)
+    monto=costoHora
+    pvehiculo.pago=(monto,tipoPago)
+    pvehiculo.estadia[0]=""
+
+def cierreDiario():
+    """
+    Funcionalidad:
+    Realiza el cierre diario del estacionamiento.
+    Entradas:
+    Ninguna.
+    Salidas:
+    Factura todos los vehículos pendientes y actualiza la base de datos.
+    """
+    vehiculos=cargarBD()
+    for vehiculo in vehiculos:
+        if vehiculo.estadia[0]!="":
+            if vehiculo.estadia[2]=="":
+                facturarVehiculoAutomatico(vehiculo)
+    datosGuardados=guardarBD(vehiculos)
+    if not datosGuardados:
+        return False,"No fue posible realizar el cierre diario."
+    generarReporteCierreDiario()
+    return True,"Cierre diario realizado correctamente."
+
 def obtenerMarca(pmarca):
     """
     Funcionalidad:
@@ -230,6 +267,23 @@ def obtenerTipo(ptipo):
     if ptipo>=1 and ptipo<=4:
         return tipos[ptipo-1]
     return "Desconocido"
+
+def obtenerTipoPago(ptipoPago):
+    """
+    Funcionalidad:
+    Convierte el código del tipo de pago en su nombre correspondiente.
+    Entradas:
+    - ptipoPago(int): Código del tipo de pago.
+    Salidas:
+    Retorna el nombre del tipo de pago.
+    """
+    if ptipoPago==1:
+        return "Efectivo"
+    elif ptipoPago==2:
+        return "SINPE"
+    elif ptipoPago==3:
+        return "Tarjeta"
+    return ""
 
 def generarQR(ptexto,pnombreArchivo):
     """
@@ -305,3 +359,108 @@ def generarVoucherPDF(pplaca, pmarca, ptipo, pfechaHoraEntrada, parchivoQR):
     hora=fechaHora[1].replace(":","-")
     nombreVoucher="voucher_"+pplaca+"_"+fecha+"_"+hora+".pdf"
     pdf.output(nombreVoucher)
+
+def generarReporteCierreDiario():
+    """
+    Funcionalidad:
+    Genera el reporte del cierre diario en formato PDF.
+    Entradas:
+    Ninguna.
+    Salidas:
+    Guarda el reporte en el disco.
+    """
+    vehiculos=cargarBD()
+    pdf=FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial","B",18)
+    pdf.set_text_color(0,0,180)
+    pdf.cell(
+        0,
+        10,
+        "CIERRE DIARIO",
+        0,
+        1,
+        "C"
+    )
+    pdf.set_font("Arial","",12)
+    pdf.set_text_color(0,0,0)
+    fechaActual=datetime.now().strftime("%d/%m/%Y")
+    pdf.cell(
+        0,
+        10,
+        fechaActual,
+        0,
+        1,
+        "C"
+    )
+    pdf.ln(5)
+    pdf.set_font("Arial","B",10)
+    pdf.set_fill_color(220,220,220)
+    pdf.cell(30,8,"Ubicación",1,0,"C",True)
+    pdf.cell(28,8,"Placa",1,0,"C",True)
+    pdf.cell(25,8,"Entrada",1,0,"C",True)
+    pdf.cell(25,8,"Salida",1,0,"C",True)
+    pdf.cell(42,8,"Tipo pago",1,0,"C",True)
+    pdf.cell(30,8,"Monto",1,1,"C",True)
+    pdf.set_font("Arial","",9)
+    totalEfectivo=0
+    totalSINPE=0
+    totalTarjeta=0
+    totalGeneral=0
+    for vehiculo in vehiculos:
+        if vehiculo.estadia[2]!="":
+            ubicacion=vehiculo.estadia[0]
+            placa=vehiculo.info[0]
+            entrada=vehiculo.estadia[1].split()[1]
+            salida=vehiculo.estadia[2].split()[1]
+            tipoPago=obtenerTipoPago(vehiculo.pago[1])
+            monto=vehiculo.pago[0]
+            pdf.cell(30,8,ubicacion,1)
+            pdf.cell(28,8,placa,1)
+            pdf.cell(25,8,entrada,1)
+            pdf.cell(25,8,salida,1)
+            pdf.cell(42,8,tipoPago,1)
+            pdf.cell(30,8,"CRC "+str(monto),1,1)
+            if vehiculo.pago[1]==1:
+                totalEfectivo+=monto
+            elif vehiculo.pago[1]==2:
+                totalSINPE+=monto
+            elif vehiculo.pago[1]==3:
+                totalTarjeta+=monto
+            totalGeneral+=monto
+    pdf.ln(10)
+    pdf.set_font("Arial","B",12)
+    pdf.set_text_color(180,0,0)
+    pdf.cell(
+        0,
+        8,
+        "Total Efectivo: CRC "+str(totalEfectivo),
+        0,
+        1
+    )
+    pdf.cell(
+        0,
+        8,
+        "Total SINPE: CRC "+str(totalSINPE),
+        0,
+        1
+    )
+    pdf.cell(
+        0,
+        8,
+        "Total Tarjeta: CRC "+str(totalTarjeta),
+        0,
+        1
+    )
+    pdf.ln(5)
+    pdf.set_font("Arial","B",14)
+    pdf.set_text_color(0,120,0)
+    pdf.cell(
+        0,
+        10,
+        "TOTAL DEL DÍA: CRC "+str(totalGeneral),
+        0,
+        1
+    )
+    nombreReporte="cierre_diario_"+fechaActual.replace("/","-")+".pdf"
+    pdf.output(nombreReporte)

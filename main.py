@@ -136,7 +136,7 @@ def estacionarVehiculoBoton(pplaca,pubicacion,pventana):
     """
     confirmacion=messagebox.askyesno(
         "Confirmar estacionamiento",
-        "El costo por hora es de ₡"+str(costoHora)+".\n\n¿Desea confirmar el estacionamiento?"
+        "El costo por hora es de CRC"+str(costoHora)+".\n\n¿Desea confirmar el estacionamiento?"
     )
     if not confirmacion:
         return
@@ -233,6 +233,72 @@ def ventanaEstacionarVehiculo():
     )
     botonRegresar.pack()
 
+def cierreDiarioBoton():
+    datosProcesados,mensaje=cierreDiario()
+    if datosProcesados:
+        messagebox.showinfo(
+            "Información",
+            mensaje
+        )
+    else:
+        messagebox.showerror(
+            "Error",
+            mensaje
+        )
+
+def ventanaReportes():
+    """
+    Funcionalidad:
+    Muestra las opciones relacionadas con los reportes.
+    Entradas:
+    Ninguna.
+    Salidas:
+    Abre la ventana de reportes.
+    """
+    ventana=ctk.CTkToplevel()
+    ventana.title("Reportes")
+    ventana.geometry("450x350")
+    titulo=ctk.CTkLabel(
+        ventana,
+        text="REPORTES",
+        font=("Arial",20,"bold")
+    )
+    titulo.pack(pady=20)
+    botonCierreDiario=ctk.CTkButton(
+        ventana,
+        text="a. Cierre diario y facturación en masa",
+        width=320,
+        command=cierreDiarioBoton
+    )
+    botonCierreDiario.pack(pady=8)
+    botonTipoPago=ctk.CTkButton(
+        ventana,
+        text="b. Cierre por tipo de pago",
+        width=320,
+        command=lambda: messagebox.showinfo(
+            "Pendiente",
+            "Función correspondiente a E2."
+        )
+    )
+    botonTipoPago.pack(pady=8)
+    botonExportarCSV=ctk.CTkButton(
+        ventana,
+        text="c. Exportar cierre diario a CSV",
+        width=320,
+        command=lambda: messagebox.showinfo(
+            "Pendiente",
+            "Función en desarrollo."
+        )
+    )
+    botonExportarCSV.pack(pady=8)
+    botonRegresar=ctk.CTkButton(
+        ventana,
+        text="Regresar",
+        width=320,
+        command=ventana.destroy
+    )
+    botonRegresar.pack(pady=20)
+
 def abrirVentanaPrincipal():
     baseDatos=cargarBD()
     ctk.set_appearance_mode("Light")
@@ -274,10 +340,7 @@ def abrirVentanaPrincipal():
         ventana,
         text="4. Reportes",
         width=300,
-        command=lambda: messagebox.showinfo(
-            "Pendiente",
-            "Función en desarrollo."
-        )
+        command=ventanaReportes
     )
     botonReportes.pack(pady=8)
     botonConfiguracion=ctk.CTkButton(
