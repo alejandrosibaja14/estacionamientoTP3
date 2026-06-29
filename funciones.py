@@ -115,6 +115,45 @@ def crearListaObjetos(diccionarioVehiculos):
         objetos.append(vehiculo)
     return objetos
 
+def facturarEspacio(vehiculo,tipoPago,montoHora,horaSalida,minutoSalida):
+    """
+    Funcionalidad:
+    Calcula el monto a pagar usando metodos estandar y genera el PDF de la factura con QR.
+    Entradas:
+    -vehiculo(object):Objeto de la clase Estacionamiento a facturar.
+    -tipoPago(int):Tipo de pago seleccionado(1:efectivo,2:SINPE,3:tarjeta).
+    -montoHora(int):Costo establecido por hora de parqueo.
+    -horaSalida(str):Hora en la que el vehiculo abandona el parqueo.
+    -minutoSalida(str):Minuto en el que el vehiculo abandona el parqueo.
+    Salidas:
+    -montoTotal(int):Monto final calculado a cobrar. Archivos PDF y PNG generados.
+    """
+    horaEntrada=vehiculo.estadia[1].split(":")
+    entHEnt=int(horaEntrada[0])
+    entMEnt=int(horaEntrada[1])
+    entHSal=int(horaSalida)
+    entMSal=int(minutoSalida)
+    totalHoras=entHSal-entHEnt
+    if entMSal>entMEnt:
+        totalHoras=totalHoras+1
+    if totalHoras<=0:
+        totalHoras=1
+    montoTotal=totalHoras*montoHora
+    vehiculo.estadia[2]=str(entHSal)+":"+str(entMSal)
+    vehiculo.pago=(montoTotal,tipoPago)
+    textoQr="Placa:"+str(vehiculo.info[0])+"-Marca:"+str(vehiculo.info[1])+"-Tipo:"+str(vehiculo.info[3])+"-Entrada:"+str(vehiculo.estadia[1])
+    imgQr=qrcode.make(textoQr)
+    nombreQr="qr_"+str(vehiculo.info[0])+".png"
+    imgQr.save(nombreQr)
+    pdf=FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial",size=12)
+    pdf.cell(200,10,txt="Factura Parqueo-Placa:"+str(vehiculo.info[0]),ln=1,align='C')
+    pdf.cell(200,10,txt="Monto a pagar:"+str(montoTotal)+" colones",ln=1,align='C')
+    pdf.image(nombreQr,x=85,y=40,w=40)
+    pdf.output("factura_"+str(vehiculo.info[0])+"_28-06-2026_"+str(entHSal)+":"+str(entMSal)+".pdf")
+    return montoTotal
+
 def cargarVehiculos():
     """
     Funcionalidad: Obtiene los vehículos desde Mockaroo, crea la lista de objetos
