@@ -9,9 +9,44 @@ from datetime import datetime
 import qrcode
 from fpdf import FPDF
 from random import randint 
+import xml.etree.ElementTree as ET
 vehiculosAPI="https://my.api.mockaroo.com/vehiculos.json?key=7427d5e0"
 costoHora=1000
 
+def cierrePorTipoDePago(listaVehiculos):
+    """
+    Funcionalidad:
+    Genera un archivo XML con los vehiculos agrupados por tipo de pago de forma plana.
+    Entradas:
+    -listaVehiculos(list):Lista de objetos Estacionamiento.
+    Salidas:
+    Archivo XML guardado en la memoria secundaria.
+    """
+    raiz=ET.Element("CierrePagos")
+    efectivo=ET.SubElement(raiz,"Efectivo")
+    sinpe=ET.SubElement(raiz,"SINPE")
+    tarjeta=ET.SubElement(raiz,"Tarjeta")
+    for vehiculo in listaVehiculos:
+        if vehiculo.pago[1]==1:
+            padre=efectivo
+        elif vehiculo.pago[1]==2:
+            padre=sinpe
+        elif vehiculo.pago[1]==3:
+            padre=tarjeta
+        else:
+            padre=efectivo
+        vehiculoXml=ET.SubElement(padre,"Vehiculo")
+        ET.SubElement(vehiculoXml,"Id").text=str(vehiculo.id)
+        ET.SubElement(vehiculoXml,"Placa").text=str(vehiculo.info[0])
+        ET.SubElement(vehiculoXml,"Marca").text=str(vehiculo.info[1])
+        ET.SubElement(vehiculoXml,"Color").text=str(vehiculo.info[2])
+        ET.SubElement(vehiculoXml,"Tipo").text=str(vehiculo.info[3])
+        ET.SubElement(vehiculoXml,"Ubicacion").text=str(vehiculo.estadia[0])
+        ET.SubElement(vehiculoXml,"Entrada").text=str(vehiculo.estadia[1])
+        ET.SubElement(vehiculoXml,"Salida").text=str(vehiculo.estadia[2])
+        ET.SubElement(vehiculoXml,"Monto").text=str(vehiculo.pago[0])
+    arbol=ET.ElementTree(raiz)
+    arbol.write("cierre_pagos.xml")
 def tamanoDelEstacionamiento(tamano,gracia,monto,electrico):
     """
     Funcionalidad:
