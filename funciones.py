@@ -9,6 +9,7 @@ from datetime import datetime
 import qrcode
 from fpdf import FPDF
 from random import randint 
+import csv
 import xml.etree.ElementTree as ET
 vehiculosAPI="https://my.api.mockaroo.com/vehiculos.json?key=7427d5e0"
 costoHora=1000
@@ -47,6 +48,7 @@ def cierrePorTipoDePago(listaVehiculos):
         ET.SubElement(vehiculoXml,"Monto").text=str(vehiculo.pago[0])
     arbol=ET.ElementTree(raiz)
     arbol.write("cierre_pagos.xml")
+    
 def tamanoDelEstacionamiento(tamano,gracia,monto,electrico):
     """
     Funcionalidad:

@@ -24,6 +24,7 @@ def acercaDe(ventanaPrincipal):
     lblInfo.pack(pady=30)
     btnRegresar=ctk.CTkButton(ventanaAcerca,text="Regresar",command=ventanaAcerca.destroy)
     btnRegresar.pack()
+
 def verEstacionamiento(ventanaPrincipal,entTamano,listaVehiculos):
     """
     Funcionalidad:
@@ -43,10 +44,11 @@ def verEstacionamiento(ventanaPrincipal,entTamano,listaVehiculos):
     for i in range(entTamano):
         colorBoton="green"
         for vehiculo in listaVehiculos:
-            if vehiculo.estadia[0]==i+1:
+            if vehiculo.estadia[0]=="A"+str(i+1):
                 colorBoton="red"
-        btnEspacio=ctk.CTkButton(frameParqueo,text="Espacio "+str(i+1),width=100,height=50,fg_color=colorBoton,command=lambda idx=i:observarEspacio(ventanaParqueo,idx+1,listaVehiculos))
+        btnEspacio=ctk.CTkButton(frameParqueo,text="A"+str(i+1),width=100,height=50,fg_color=colorBoton,command=lambda idx=i: observarEspacio(ventanaParqueo,"A"+str(idx+1),listaVehiculos))
         btnEspacio.grid(row=i//5,column=i%5,padx=10,pady=10)
+        
 def observarEspacio(ventanaPadre,ubicacion,listaVehiculos):
     """
     Funcionalidad:
@@ -66,14 +68,30 @@ def observarEspacio(ventanaPadre,ubicacion,listaVehiculos):
         if v.estadia[0]==ubicacion:
             vehiculoActual=v
     if vehiculoActual!=None:
-        lblInfo=ctk.CTkLabel(ventanaObservar,text="Placa: "+str(vehiculoActual.info[0])+"\nMarca: "+str(vehiculoActual.info[1])+"\nColor: "+str(vehiculoActual.info[2])+"\nHora de entrada: "+str(vehiculoActual.estadia[1]))
+        lblInfo=ctk.CTkLabel(
+            ventanaObservar,
+            text=
+            "Placa: "+str(vehiculoActual.info[0])+
+            "\nMarca: "+obtenerMarca(vehiculoActual.info[1])+
+            "\nColor: "+obtenerColor(vehiculoActual.info[2])+
+            "\nTipo: "+obtenerTipo(vehiculoActual.info[3])+
+            "\nHora de entrada: "+str(vehiculoActual.estadia[1])
+        )
         lblInfo.pack(pady=20)
         btnPagar=ctk.CTkButton(ventanaObservar,text="Pagar")
         btnPagar.pack(pady=5)
     else:
-        lblInfo=ctk.CTkLabel(ventanaObservar,text="Espacio libre")
+        lblInfo=ctk.CTkLabel(
+            ventanaObservar,
+            text="Ubicación: A"+str(ubicacion)+"\n\nEstado: Disponible"
+        )
         lblInfo.pack(pady=20)
-        btnEstacionar=ctk.CTkButton(ventanaObservar,text="Estacionar")
+
+        btnEstacionar=ctk.CTkButton(
+            ventanaObservar,
+            text="Estacionar",
+            command=ventanaEstacionarVehiculo
+        )
         btnEstacionar.pack(pady=5)
     btnRegresar=ctk.CTkButton(ventanaObservar,text="Regresar",command=ventanaObservar.destroy)
     btnRegresar.pack(pady=5)
