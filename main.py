@@ -8,6 +8,54 @@ from funciones import *
 from archivos import *
 from clases import *
 from tkinter import messagebox
+def configurarEstacionamiento(ventanaPrincipal):
+    """
+    Funcionalidad:
+    Muestra la ventana para configurar los parametros iniciales del parqueo.
+    Entradas:
+    -ventanaPrincipal(object):Ventana padre desde donde se invoca.
+    Salidas:
+    Ventana grafica de configuracion.
+    """
+    ventanaConfig=ctk.CTkToplevel(ventanaPrincipal)
+    ventanaConfig.title("Configuración")
+    ventanaConfig.geometry("400x450")
+    lblTamano=ctk.CTkLabel(ventanaConfig,text="Tamaño del estacionamiento:")
+    lblTamano.pack(pady=5)
+    txtTamano=ctk.CTkEntry(ventanaConfig)
+    txtTamano.pack(pady=5)
+    lblGracia=ctk.CTkLabel(ventanaConfig,text="Tiempo de gracia(minutos):")
+    lblGracia.pack(pady=5)
+    txtGracia=ctk.CTkEntry(ventanaConfig)
+    txtGracia.pack(pady=5)
+    lblMonto=ctk.CTkLabel(ventanaConfig,text="Monto por hora(colones):")
+    lblMonto.pack(pady=5)
+    txtMonto=ctk.CTkEntry(ventanaConfig)
+    txtMonto.pack(pady=5)
+    chkElectrico=ctk.CTkCheckBox(ventanaConfig,text="¿Tiene espacio eléctrico?")
+    chkElectrico.pack(pady=10)
+    btnGuardar=ctk.CTkButton(ventanaConfig,text="Guardar",command=lambda:guardarConfiguracion(txtTamano.get(),txtGracia.get(),txtMonto.get(),chkElectrico.get(),ventanaConfig))
+    btnGuardar.pack(pady=10)
+    btnRegresar=ctk.CTkButton(ventanaConfig,text="Regresar",command=ventanaConfig.destroy)
+    btnRegresar.pack(pady=5)
+def guardarConfiguracion(tamano,gracia,monto,electrico,ventana):
+    """
+    Funcionalidad:
+    Llama a la logica matematica y procesa los datos de la interfaz grafica.
+    Entradas:
+    -tamano(str):Cantidad de espacios.
+    -gracia(str):Minutos de gracia.
+    -monto(str):Precio por hora.
+    -electrico(int):Estado del checkbox(1:si,0:no).
+    -ventana(object):Ventana a destruir.
+    Salidas:
+    Ejecucion de la funcion logica y cierre de ventana.
+    """
+    tieneElectrico=False
+    if electrico==1:
+        tieneElectrico=True
+    listaConfig=tamanoDelEstacionamiento(tamano,gracia,monto,tieneElectrico)
+    ventana.destroy()
 def acercaDe(ventanaPrincipal):
     """
     Funcionalidad:
