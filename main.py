@@ -38,24 +38,43 @@ def configurarEstacionamiento(ventanaPrincipal):
     btnGuardar.pack(pady=10)
     btnRegresar=ctk.CTkButton(ventanaConfig,text="Regresar",command=ventanaConfig.destroy)
     btnRegresar.pack(pady=5)
+    
 def guardarConfiguracion(tamano,gracia,monto,electrico,ventana):
     """
     Funcionalidad:
-    Llama a la logica matematica y procesa los datos de la interfaz grafica.
+    Llama a la lógica matemática, guarda la configuración
+    y procesa los datos de la interfaz gráfica.
     Entradas:
-    -tamano(str):Cantidad de espacios.
-    -gracia(str):Minutos de gracia.
-    -monto(str):Precio por hora.
-    -electrico(int):Estado del checkbox(1:si,0:no).
-    -ventana(object):Ventana a destruir.
+    - tamano(str): Cantidad de espacios.
+    - gracia(str): Minutos de gracia.
+    - monto(str): Precio por hora.
+    - electrico(int): Estado del checkbox (1: sí, 0: no).
+    - ventana(object): Ventana a destruir.
     Salidas:
-    Ejecucion de la funcion logica y cierre de ventana.
+    Guarda la configuración y cierra la ventana.
     """
     tieneElectrico=False
     if electrico==1:
         tieneElectrico=True
-    listaConfig=tamanoDelEstacionamiento(tamano,gracia,monto,tieneElectrico)
+    listaConfig=tamanoDelEstacionamiento(
+        tamano,
+        gracia,
+        monto,
+        tieneElectrico
+    )
+    datosGuardados=guardarConfiguracionBD(listaConfig)
+    if not datosGuardados:
+        messagebox.showerror(
+            "Error",
+            "No fue posible guardar la configuración."
+        )
+        return
+    messagebox.showinfo(
+        "Información",
+        "Configuración guardada correctamente."
+    )
     ventana.destroy()
+
 def acercaDe(ventanaPrincipal):
     """
     Funcionalidad:
@@ -92,10 +111,25 @@ def verEstacionamiento(ventanaPrincipal,entTamano,listaVehiculos):
     for i in range(entTamano):
         colorBoton="green"
         for vehiculo in listaVehiculos:
-            if vehiculo.estadia[0]=="A"+str(i+1):
+            if (vehiculo.estadia[0]=="A"+str(i+1) and vehiculo.estadia[2]==""):
                 colorBoton="red"
         btnEspacio=ctk.CTkButton(frameParqueo,text="A"+str(i+1),width=100,height=50,fg_color=colorBoton,command=lambda idx=i: observarEspacio(ventanaParqueo,"A"+str(idx+1),listaVehiculos))
         btnEspacio.grid(row=i//5,column=i%5,padx=10,pady=10)
+
+def verEstacionamientoBoton(pventana):
+    listaConfiguracion=cargarConfiguracionBD()
+    if listaConfiguracion==[]:
+        messagebox.showerror(
+            "Error",
+            "Primero debe configurar el estacionamiento."
+        )
+        return
+    listaVehiculos=cargarBD()
+    verEstacionamiento(
+        pventana,
+        listaConfiguracion[0],
+        listaVehiculos
+    )
         
 def observarEspacio(ventanaPadre,ubicacion,listaVehiculos):
     """
@@ -161,6 +195,7 @@ def obtenerVehiculosBoton():
             "Error",
             "No fue posible obtener los vehículos."
         )
+        
 def buscarVehiculo(pplaca,plistaVehiculos,plabelMarca,plabelColor,plabelTipo):
     """
     Funcionalidad:
@@ -362,10 +397,7 @@ def ventanaReportes():
         ventana,
         text="b. Cierre por tipo de pago",
         width=320,
-        command=lambda: messagebox.showinfo(
-            "Pendiente",
-            "Función correspondiente a E2."
-        )
+        command=cierreTipoPagoBoton
     )
     botonTipoPago.pack(pady=8)
     botonExportarCSV=ctk.CTkButton(
@@ -383,6 +415,28 @@ def ventanaReportes():
     )
     botonRegresar.pack(pady=20)
 
+def cierreTipoPagoBoton():
+    """
+    Funcionalidad:
+    Genera el archivo XML con el cierre agrupado por tipo de pago.
+    Entradas:
+    Ninguna.
+    Salidas:
+    Genera el archivo XML y muestra el resultado de la operación.
+    """
+    listaVehiculos=cargarBD()
+    try:
+        cierrePorTipoDePago(listaVehiculos)
+        messagebox.showinfo(
+            "Información",
+            "Archivo XML generado correctamente."
+        )
+    except:
+        messagebox.showerror(
+            "Error",
+            "No fue posible generar el archivo XML."
+        )
+
 def abrirVentanaPrincipal():
     baseDatos=cargarBD()
     ctk.set_appearance_mode("Light")
@@ -398,58 +452,53 @@ def abrirVentanaPrincipal():
     titulo.pack(pady=30)
     botonObtenerVehiculos=ctk.CTkButton(
         ventana,
-        text="1. Obtener vehículos",
+        text="Obtener vehículos",
         width=300,
         command=obtenerVehiculosBoton
     )
     botonObtenerVehiculos.pack(pady=8)
     botonVer=ctk.CTkButton(
         ventana,
-        text="2. Ver estacionamiento",
+        text="Ver estacionamiento",
         width=300,
-        command=lambda: messagebox.showinfo(
-            "Pendiente",
-            "Función en desarrollo."
-        )
+        command=lambda: verEstacionamientoBoton(ventana)
     )
     botonVer.pack(pady=8)
     botonEstacionar=ctk.CTkButton(
         ventana,
-        text="2. Estacionar vehículo",
+        text="Estacionar vehículo",
         width=300,
         command=ventanaEstacionarVehiculo
     )
     botonEstacionar.pack(pady=8)
     botonReportes=ctk.CTkButton(
         ventana,
-        text="4. Reportes",
+        text="Reportes",
         width=300,
         command=ventanaReportes
     )
     botonReportes.pack(pady=8)
     botonConfiguracion=ctk.CTkButton(
         ventana,
-        text="5. Configuración",
+        text="Configuración",
         width=300,
-        command=lambda: messagebox.showinfo(
-            "Pendiente",
-            "Función en desarrollo."
+        command=lambda: configurarEstacionamiento(
+            ventana
         )
     )
     botonConfiguracion.pack(pady=8)
     botonAcerca=ctk.CTkButton(
         ventana,
-        text="6. Acerca de",
+        text="Acerca de",
         width=300,
-        command=lambda: messagebox.showinfo(
-            "Pendiente",
-            "Función en desarrollo."
+        command=lambda: acercaDe(
+            ventana
         )
     )
     botonAcerca.pack(pady=8)
     botonSalir=ctk.CTkButton(
         ventana,
-        text="7. Salir",
+        text="Salir",
         width=300,
         command=ventana.destroy
     )

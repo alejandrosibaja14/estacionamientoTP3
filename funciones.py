@@ -39,16 +39,19 @@ def cierrePorTipoDePago(listaVehiculos):
         vehiculoXml=ET.SubElement(padre,"Vehiculo")
         ET.SubElement(vehiculoXml,"Id").text=str(vehiculo.id)
         ET.SubElement(vehiculoXml,"Placa").text=str(vehiculo.info[0])
-        ET.SubElement(vehiculoXml,"Marca").text=str(vehiculo.info[1])
-        ET.SubElement(vehiculoXml,"Color").text=str(vehiculo.info[2])
-        ET.SubElement(vehiculoXml,"Tipo").text=str(vehiculo.info[3])
+        ET.SubElement(vehiculoXml,"Marca").text=obtenerMarca(vehiculo.info[1])
+        ET.SubElement(vehiculoXml,"Color").text=obtenerColor(vehiculo.info[2])
+        ET.SubElement(vehiculoXml,"Tipo").text=obtenerTipo(vehiculo.info[3])
         ET.SubElement(vehiculoXml,"Ubicacion").text=str(vehiculo.estadia[0])
         ET.SubElement(vehiculoXml,"Entrada").text=str(vehiculo.estadia[1])
         ET.SubElement(vehiculoXml,"Salida").text=str(vehiculo.estadia[2])
         ET.SubElement(vehiculoXml,"Monto").text=str(vehiculo.pago[0])
     arbol=ET.ElementTree(raiz)
     arbol.write("cierre_pagos.xml")
-    
+    fechaActual=datetime.now().strftime("%d-%m-%Y_%H-%M")
+    nombreArchivo="cierre_pagos_"+fechaActual+".xml"
+    arbol.write(nombreArchivo)
+
 def tamanoDelEstacionamiento(tamano,gracia,monto,electrico):
     """
     Funcionalidad:
@@ -274,12 +277,6 @@ def cierreDiario():
     if not datosGuardados:
         return False,"No fue posible realizar el cierre diario."
     generarReporteCierreDiario()
-    for vehiculo in vehiculos:
-        if vehiculo.estadia[2]!="":
-            vehiculo.estadia[0]=""
-    datosGuardados=guardarBD(vehiculos)
-    if not datosGuardados:
-        return False,"No fue posible actualizar la base de datos."
     return True,"Cierre diario realizado correctamente."
 
 def obtenerMarca(pmarca):

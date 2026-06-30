@@ -20,7 +20,6 @@ def guardarBD(plistaVehiculos):
         return True
     except: return False
 
-
 def cargarBD():
     """
     Funcionalidad:
@@ -35,5 +34,39 @@ def cargarBD():
         listaVehiculos=pickle.load(archivo)
         archivo.close()
         return listaVehiculos
+    except:
+        return []
+    
+def guardarConfiguracionBD(plistaConfiguracion):
+    """
+    Funcionalidad:
+    Guarda la configuración del estacionamiento en memoria secundaria.
+    Entradas:
+    - plistaConfiguracion(list): Lista con la configuración.
+    Salidas:
+    Retorna True si se guardó correctamente y False en caso contrario.
+    """
+    try:
+        archivo=open("configuracion.pkl","wb")
+        pickle.dump(plistaConfiguracion,archivo)
+        archivo.close()
+        return True
+    except:
+        return False
+
+def cargarConfiguracionBD():
+    """
+    Funcionalidad:
+    Carga la configuración del estacionamiento desde memoria secundaria.
+    Entradas:
+    Ninguna.
+    Salidas:
+    Retorna la lista con la configuración almacenada.
+    """
+    try:
+        archivo=open("configuracion.pkl","rb")
+        listaConfiguracion=pickle.load(archivo)
+        archivo.close()
+        return listaConfiguracion
     except:
         return []
