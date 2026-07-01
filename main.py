@@ -119,9 +119,14 @@ def verEstacionamiento(ventanaPrincipal,listaConfig,listaVehiculos):
         else:
             colorBoton="green"
         for vehiculo in listaVehiculos:
-            if vehiculo.estadia[0]==i+1:
+            if (vehiculo.estadia[0]=="A"+str(i+1)and vehiculo.estadia[2]==""):
                 colorBoton="red"
-        btnEspacio=ctk.CTkButton(frameParqueo,text="Espacio "+str(i+1),width=100,height=50,fg_color=colorBoton,command=lambda idx=i:observarEspacio(ventanaParqueo,idx+1,listaVehiculos))
+        ctk.CTkLabel(ventanaParqueo,text="Referencia de colores:",font=("Arial",14,"bold")).pack(pady=(10,5))
+        ctk.CTkLabel(ventanaParqueo,text="Azul: Espacios para personas con discapacidad",anchor="w").pack()
+        ctk.CTkLabel(ventanaParqueo,text="Amarillo: Espacios para vehículos eléctricos",anchor="w").pack()
+        ctk.CTkLabel(ventanaParqueo,text="Verde: Espacios comunes",anchor="w").pack()
+        ctk.CTkLabel(ventanaParqueo,text="Rojo: Espacio ocupado",anchor="w").pack()
+        btnEspacio=ctk.CTkButton(frameParqueo,text="A"+str(i+1),width=100,height=50,fg_color=colorBoton,command=lambda idx=i: observarEspacio(ventanaParqueo,"A"+str(idx+1),listaVehiculos))
         btnEspacio.grid(row=i//5,column=i%5,padx=10,pady=10)
 
 def verEstacionamientoBoton(pventana):
@@ -135,7 +140,7 @@ def verEstacionamientoBoton(pventana):
     listaVehiculos=cargarBD()
     verEstacionamiento(
         pventana,
-        listaConfiguracion[0],
+        listaConfiguracion,
         listaVehiculos
     )
         
@@ -173,7 +178,7 @@ def observarEspacio(ventanaPadre,ubicacion,listaVehiculos):
     else:
         lblInfo=ctk.CTkLabel(
             ventanaObservar,
-            text="Ubicación: A"+str(ubicacion)+"\n\nEstado: Disponible"
+            text="Ubicación: "+str(ubicacion)+"\n\nEstado: Disponible"
         )
         lblInfo.pack(pady=20)
 
@@ -396,21 +401,21 @@ def ventanaReportes():
     titulo.pack(pady=20)
     botonCierreDiario=ctk.CTkButton(
         ventana,
-        text="a. Cierre diario y facturación en masa",
+        text="Cierre diario y facturación en masa",
         width=320,
         command=cierreDiarioBoton
     )
     botonCierreDiario.pack(pady=8)
     botonTipoPago=ctk.CTkButton(
         ventana,
-        text="b. Cierre por tipo de pago",
+        text="Cierre por tipo de pago",
         width=320,
         command=cierreTipoPagoBoton
     )
     botonTipoPago.pack(pady=8)
     botonExportarCSV=ctk.CTkButton(
         ventana,
-        text="c. Exportar cierre diario a CSV",
+        text="Exportar cierre diario a CSV",
         width=320,
         command=exportarCSVBoton
     )
