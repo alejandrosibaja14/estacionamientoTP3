@@ -92,14 +92,14 @@ def acercaDe(ventanaPrincipal):
     btnRegresar=ctk.CTkButton(ventanaAcerca,text="Regresar",command=ventanaAcerca.destroy)
     btnRegresar.pack()
 
-def verEstacionamiento(ventanaPrincipal,entTamano,listaVehiculos):
+def verEstacionamiento(ventanaPrincipal,listaConfig,listaVehiculos):
     """
     Funcionalidad:
-    Crea la interfaz grafica asignando colores segun la disponibilidad y enlaza los botones.
+    Crea la interfaz grafica asignando colores segun tipo de espacio y disponibilidad.
     Entradas:
-    -ventanaPrincipal(objeto):Ventana padre del sistema.
-    -entTamano(entero):Cantidad de espacios totales a dibujar.
-    -listaVehiculos(lista):Lista de objetos Estacionamiento.
+    -ventanaPrincipal(object):Ventana padre del sistema.
+    -listaConfig(list):Lista con la configuracion del parqueo(tamano,especiales,electricos).
+    -listaVehiculos(list):Lista de objetos Estacionamiento.
     Salidas:
     Ventana con la cuadricula de botones y estados de color aplicados.
     """
@@ -108,12 +108,20 @@ def verEstacionamiento(ventanaPrincipal,entTamano,listaVehiculos):
     ventanaParqueo.geometry("800x600")
     frameParqueo=ctk.CTkScrollableFrame(ventanaParqueo,width=700,height=500)
     frameParqueo.pack(pady=20)
+    entTamano=listaConfig[0]
+    entEsp=listaConfig[3]
+    entElec=listaConfig[4]
     for i in range(entTamano):
-        colorBoton="green"
+        if i<entEsp:
+            colorBoton="blue"
+        elif i<(entEsp+entElec):
+            colorBoton="yellow"
+        else:
+            colorBoton="green"
         for vehiculo in listaVehiculos:
-            if (vehiculo.estadia[0]=="A"+str(i+1) and vehiculo.estadia[2]==""):
+            if vehiculo.estadia[0]==i+1:
                 colorBoton="red"
-        btnEspacio=ctk.CTkButton(frameParqueo,text="A"+str(i+1),width=100,height=50,fg_color=colorBoton,command=lambda idx=i: observarEspacio(ventanaParqueo,"A"+str(idx+1),listaVehiculos))
+        btnEspacio=ctk.CTkButton(frameParqueo,text="Espacio "+str(i+1),width=100,height=50,fg_color=colorBoton,command=lambda idx=i:observarEspacio(ventanaParqueo,idx+1,listaVehiculos))
         btnEspacio.grid(row=i//5,column=i%5,padx=10,pady=10)
 
 def verEstacionamientoBoton(pventana):
